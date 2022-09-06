@@ -1,11 +1,12 @@
 package com.example.android_room_with_a_view.domain
 
+import android.util.Log
 import com.example.android_room_with_a_view.common.FailedCacheResponseException
 import com.example.android_room_with_a_view.common.FailedNetworkResponseException
 import com.example.android_room_with_a_view.common.InternetCheck
 import com.example.android_room_with_a_view.common.StateAction
-import com.example.android_room_with_a_view.domain.response.DataDomain
-import com.example.android_room_with_a_view.domain.response.UserDomain
+import com.example.android_room_with_a_view.domain.response.DetailsDomain
+import com.example.android_room_with_a_view.domain.response.ResultDomain
 import com.example.android_room_with_a_view.model.local.LocalDataSource
 import com.example.android_room_with_a_view.model.remote.RemoteDataSource
 import kotlinx.coroutines.flow.Flow
@@ -14,7 +15,8 @@ import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 interface Repository {
-    fun userCatched(): Flow<StateAction>
+    fun pokemonCatched(): Flow<StateAction>
+    fun detailsCatched(pokemon: String): Flow<StateAction>
 }
 
 class RepositoryImpl @Inject constructor(
@@ -23,17 +25,17 @@ class RepositoryImpl @Inject constructor(
 ) : Repository {
 
 
-    override fun userCatched(): Flow<StateAction> = flow {
+    override fun pokemonCatched(): Flow<StateAction> = flow {
         val connected = InternetCheck()
-        val remoteService = remoteDataSource.userCatched()
+        val remoteService = remoteDataSource.pokemonCatched()
         if (connected.isConnected()) {
             remoteService.collect { stateAction ->
                 when (stateAction) {
                     is StateAction.SUCCESS<*> -> {
-                        val retrievedUser = stateAction.response as List<DataDomain>
+                        val retrievedPokemon = stateAction.response as List<ResultDomain>
                         val retrievedMessage = stateAction.message
-                        emit(StateAction.SUCCESS(retrievedUser, retrievedMessage))
-                        localDataSource.insertUser(retrievedUser).collect()
+                        emit(StateAction.SUCCESS(retrievedPokemon, retrievedMessage))
+                        localDataSource.insertPokemon(retrievedPokemon).collect()
 
 
                     }
@@ -43,13 +45,13 @@ class RepositoryImpl @Inject constructor(
                 }
             }
         } else {
-            val cache = localDataSource.getAllUsers()
+            val cache = localDataSource.getAllPokemons()
             cache.collect { stateAction ->
                 when (stateAction) {
                     is StateAction.SUCCESS<*> -> {
-                        val retrievedUser = stateAction.response as List<DataDomain>
+                        val retrievedPokemon = stateAction.response as List<ResultDomain>
                         val retrievedMessage = stateAction.message
-                        emit(StateAction.SUCCESS(retrievedUser, retrievedMessage))
+                        emit(StateAction.SUCCESS(retrievedPokemon, retrievedMessage))
                     }
                     is StateAction.ERROR -> {
                         emit(StateAction.ERROR(FailedCacheResponseException()))
@@ -59,6 +61,45 @@ class RepositoryImpl @Inject constructor(
             }
 
         }
+    }
+
+    override fun detailsCatched(pokemon: String): Flow<StateAction> = flow {
+        val connected = InternetCheck()
+        val remoteService = remoteDataSource.detailsCatched(pokemon)
+        if (connected.isConnected()) {
+            remoteService.collect { stateAction ->
+                when (stateAction) {
+                    is StateAction.SUCCESS<*> -> {
+                        val retrievedPokemon = stateAction.response as DetailsDomain
+                        val retrievedMessage = stateAction.message
+                        emit(StateAction.SUCCESS(retrievedPokemon, retrievedMessage))
+//                        localDataSource.insertDetail(retrievedPokemon).collect()
+
+
+                    }
+                    is StateAction.ERROR -> {
+                        emit(StateAction.ERROR(FailedNetworkResponseException()))
+                    }
+                }
+            }
+        }
+//        else {
+//            val cache = localDataSource.getAllDetail()
+//            cache.collect { stateAction ->
+//                when (stateAction) {
+//                    is StateAction.SUCCESS<*> -> {
+//                        val retrievedPokemon = stateAction.response as DetailsDomain
+//                        val retrievedMessage = stateAction.message
+//                        emit(StateAction.SUCCESS(retrievedPokemon, retrievedMessage))
+//                    }
+//                    is StateAction.ERROR -> {
+//                        emit(StateAction.ERROR(FailedCacheResponseException()))
+//                    }
+//                }
+//
+//            }
+//
+//        }
     }
 
 }

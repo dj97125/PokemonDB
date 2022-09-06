@@ -3,6 +3,8 @@ package com.example.android_room_with_a_view.view_model
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.android_room_with_a_view.common.FailedNetworkResponseException
 import com.example.android_room_with_a_view.common.StateAction
+import com.example.android_room_with_a_view.domain.DetailsUseCase
+import com.example.android_room_with_a_view.domain.PokemonUseCase
 import com.example.android_room_with_a_view.domain.UserUseCase
 import com.example.android_room_with_a_view.domain.response.UserDomain
 import com.google.common.truth.Truth
@@ -29,17 +31,19 @@ class ViewModelTest {
     @get:Rule
     var rule = InstantTaskExecutorRule()
     lateinit var subject: ViewModel
-    lateinit var userUseCase: UserUseCase
+    lateinit var pokemonUseCase: PokemonUseCase
+    lateinit var detailsUseCase: DetailsUseCase
     private val handler = CoroutineExceptionHandler { coroutineContext, throwable -> }
     private val testDispatcher = UnconfinedTestDispatcher()
     private val testScopeCoroutine = TestScope(testDispatcher)
 
     @Before
     fun setUpTest() {
-        userUseCase = mockk()
+        pokemonUseCase = mockk()
+        detailsUseCase = mockk()
         subject = ViewModel(
             handler,
-            userUseCase,
+            pokemonUseCase,
             testScopeCoroutine
         )
     }

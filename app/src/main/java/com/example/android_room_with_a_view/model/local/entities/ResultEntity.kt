@@ -8,9 +8,9 @@ import com.google.gson.annotations.SerializedName
 @Entity
 data class ResultEntity(
     @PrimaryKey(autoGenerate = true)
-    val id: Int? = 0,
+    val id: Int = 0,
     @SerializedName("name")
-    val name: String?,
+    val name: String,
     @SerializedName("url")
-    val url: String?
+    val url: String
 )

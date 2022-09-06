@@ -3,19 +3,20 @@ package com.example.android_room_with_a_view.view
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.android_room_with_a_view.common.OnPokemonClicked
 import com.example.android_room_with_a_view.databinding.ItemLayoutBinding
-import com.example.android_room_with_a_view.domain.response.DataDomain
-import com.example.android_room_with_a_view.domain.response.UserDomain
-import com.squareup.picasso.Picasso
+import com.example.android_room_with_a_view.domain.response.DetailsDomain
+import com.example.android_room_with_a_view.domain.response.ResultDomain
 
-class UserAdapter(
-    private val items: MutableList<DataDomain> = mutableListOf(),
-) : RecyclerView.Adapter<UserAdapter.UserViewHolder>() {
+class PokemonAdapter(
+    private val onPokemonClicked: OnPokemonClicked,
+    private val items: MutableList<ResultDomain> = mutableListOf(),
+) : RecyclerView.Adapter<PokemonAdapter.UserViewHolder>() {
 
     class UserViewHolder(val binding: ItemLayoutBinding) :
         RecyclerView.ViewHolder(binding.root)
 
-    fun updateData(newItems: List<DataDomain>) {
+    fun updateData(newItems: List<ResultDomain>) {
         items.addAll(newItems)
         notifyDataSetChanged()
     }
@@ -35,10 +36,11 @@ class UserAdapter(
     }
 
     override fun onBindViewHolder(holder: UserViewHolder, position: Int) {
-        Picasso.get()
-            .load(items[position].avatar)
-            .into(holder.binding.moviePoster)
-        holder.binding.heroeTxt.text = items[position].firstName
+        holder.binding.heroeTxt.text = items[position].name
+
+        holder.binding.movieView.setOnClickListener {
+            onPokemonClicked.pokemonClicked((items[position]))
+        }
 
     }
 

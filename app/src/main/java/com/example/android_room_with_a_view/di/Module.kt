@@ -9,7 +9,7 @@ import com.example.android_room_with_a_view.domain.Repository
 import com.example.android_room_with_a_view.domain.RepositoryImpl
 import com.example.android_room_with_a_view.model.local.LocalDataSource
 import com.example.android_room_with_a_view.model.local.LocalDataSourceImpl
-import com.example.android_room_with_a_view.model.local.UserDB
+import com.example.android_room_with_a_view.model.local.PokemonDB
 import com.example.android_room_with_a_view.model.remote.RemoteApi
 import com.example.android_room_with_a_view.model.remote.RemoteDataSource
 import com.example.android_room_with_a_view.model.remote.RemoteDataSourceImpl
@@ -73,15 +73,15 @@ interface ServiceModule {
 
         @Provides
         @ProductionDB
-        fun provideRoom(@ApplicationContext context: Context): UserDB =
+        fun provideRoom(@ApplicationContext context: Context): PokemonDB =
             Room.databaseBuilder(
                 context,
-                UserDB::class.java, DATABASE_NAME
+                PokemonDB::class.java, DATABASE_NAME
             ).fallbackToDestructiveMigration().build()
 
 
         @Provides
-        fun provideDao(@ProductionDB dataBase: UserDB) = dataBase.UsersDao()
+        fun provideDao(@ProductionDB dataBase: PokemonDB) = dataBase.PokemonDao()
 
 
         @Provides
